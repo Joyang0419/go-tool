@@ -12,10 +12,12 @@ import (
 )
 
 func main() {
-	fx.New(web.InjectServer(web.NewServerConfig(8081, 5*time.Second))).Run()
+	fx.New(
+		web.RegisterController(NewHealthController),
+		web.InjectServer(web.NewServerConfig(8081, 5*time.Second)),
+	).Run()
 }
 
-// TODO delete
 type HealthController struct {
 }
 
