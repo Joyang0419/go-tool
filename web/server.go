@@ -29,7 +29,7 @@ type ServerParams struct {
 	fx.In
 
 	ServerConfig ServerConfig
-	Controllers  []TIController `group:"controllers"`
+	Controllers  []IController `group:"controllers"`
 }
 
 func NewServer(lc fx.Lifecycle, params ServerParams) {

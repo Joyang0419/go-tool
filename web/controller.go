@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type TIController interface {
+type IController interface {
 	// BasePath 路由前綴, 例如: /api/v1
 	BasePath() string
 	// Routes 註冊路由, 例如: router.GET("/ping", func(c *gin.Context) {})

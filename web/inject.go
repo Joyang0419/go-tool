@@ -6,7 +6,7 @@ import (
 
 // RegisterController 注册控制器
 func RegisterController(constructor any) fx.Option {
-	return fx.Provide(fx.Annotate(constructor, fx.As(new(TIController)), fx.ResultTags(`group:"controllers"`)))
+	return fx.Provide(fx.Annotate(constructor, fx.As(new(IController)), fx.ResultTags(`group:"controllers"`)))
 }
 
 // InjectServer 注入Web 服务器

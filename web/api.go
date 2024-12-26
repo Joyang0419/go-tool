@@ -11,13 +11,13 @@ import (
 	"go-tool/web/response"
 )
 
-type TIRequest[T any] interface {
-	Parse(c *gin.Context) (TIRequest[T], error)
+type IRequest[T any] interface {
+	Parse(c *gin.Context) (IRequest[T], error)
 }
 
-type TApplication[REQ any, RESP any] func(ctx context.Context, request REQ) RESP
+type Application[REQ any, RESP any] func(ctx context.Context, request REQ) RESP
 
-func ToHandlerFn[REQ any, RESP any](application TApplication[REQ, RESP]) gin.HandlerFunc {
+func ToHandlerFn[REQ any, RESP any](application Application[REQ, RESP]) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 檢查類型並建立實例
 		reqType := reflect.TypeOf((*REQ)(nil)).Elem()
@@ -31,10 +31,10 @@ func ToHandlerFn[REQ any, RESP any](application TApplication[REQ, RESP]) gin.Han
 			panic(response.NewError(http.StatusInternalServerError, 0, "[ToHandlerFn]reqInstance.IsValid() == false"))
 		}
 
-		// 嘗試轉換為 TIRequest 接口
-		reqValue, ok := reqInstance.Interface().(TIRequest[any])
+		// 嘗試轉換為 IRequest 接口
+		reqValue, ok := reqInstance.Interface().(IRequest[any])
 		if !ok {
-			panic(response.NewError(http.StatusInternalServerError, 0, "[ToHandlerFn]reqValue.(TIRequest) == false"))
+			panic(response.NewError(http.StatusInternalServerError, 0, "[ToHandlerFn]reqValue.(IRequest) == false"))
 		}
 
 		// 解析請求
