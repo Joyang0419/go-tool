@@ -4,58 +4,22 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"reflect"
 
 	"github.com/gin-gonic/gin"
 
 	"go-tool/web/response"
 )
 
-type IRequest[T any] interface {
-	Parse(c *gin.Context) (IRequest[T], error)
-}
-
 type Application[REQ any, RESP any] func(ctx context.Context, request REQ) RESP
 
 func ToHandlerFn[REQ any, RESP any](application Application[REQ, RESP]) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// 檢查類型並建立實例
-		reqType := reflect.TypeOf((*REQ)(nil)).Elem()
-		if reqType == nil {
-			panic(response.NewError(http.StatusInternalServerError, 0, "[ToHandlerFn]reqType == nil"))
+		var request REQ
+		if err := BindRequest(c, &request); err != nil {
+			panic(fmt.Errorf("[ToHandlerFn]failed to bind request: %w", err))
 		}
 
-		// 建立新實例
-		reqInstance := reflect.New(reqType)
-		if !reqInstance.IsValid() {
-			panic(response.NewError(http.StatusInternalServerError, 0, "[ToHandlerFn]reqInstance.IsValid() == false"))
-		}
-
-		// 嘗試轉換為 IRequest 接口
-		reqValue, ok := reqInstance.Interface().(IRequest[any])
-		if !ok {
-			panic(response.NewError(http.StatusInternalServerError, 0, "[ToHandlerFn]reqValue.(IRequest) == false"))
-		}
-
-		// 解析請求
-		parsedREQ, err := reqValue.Parse(c)
-		if err != nil {
-			panic(response.NewError(http.StatusBadRequest, 0, fmt.Sprintf("[ToHandlerFn]reqValue.Parse(c) error: %v", err)))
-		}
-
-		// 檢查 parsedREQ 是否為 nil
-		if parsedREQ == nil {
-			panic(response.NewError(http.StatusInternalServerError, 0, "[ToHandlerFn]parsedREQ == nil"))
-		}
-
-		// 嘗試轉換回 REQ 類型
-		finalReq, ok := parsedREQ.(REQ)
-		if !ok {
-			panic(response.NewError(http.StatusInternalServerError, 0, "[ToHandlerFn]parsedREQ.(REQ) == false"))
-		}
-
-		// 執行應用邏輯
-		result := application(c.Request.Context(), finalReq)
+		result := application(c.Request.Context(), request)
 
 		r := response.TResponse{
 			Success: true,
@@ -63,5 +27,34 @@ func ToHandlerFn[REQ any, RESP any](application Application[REQ, RESP]) gin.Hand
 		}
 
 		c.JSON(http.StatusOK, r)
+	}
+}
+
+// BindRequest 綁定請求參數
+/* example struct:
+type UserRequest struct {
+    ID      int    `uri:"id"`        // path parameter /:id
+	Message string `query:"message"` // query parameter ?message=hello
+    Tags        []string `form:"tags" json:"tags"`        // form-data array or json array
+	file 	  *multipart.FileHeader `form:"file"` // form-data file
+}
+*/
+func BindRequest(c *gin.Context, request interface{}) error {
+	if err := c.ShouldBindUri(request); err != nil {
+		return fmt.Errorf("[BindRequest]failed to bind path parameters: %w", err)
+	}
+
+	switch c.Request.Method {
+	case http.MethodGet:
+		// GET 請求只綁定 query parameters; 不綁定body
+		return c.ShouldBindQuery(request)
+	case http.MethodPatch, http.MethodPost, http.MethodPut:
+		// POST, PUT, PATCH 請求綁定 body; 不綁定query parameters
+		return c.ShouldBind(request)
+	case http.MethodDelete:
+		// DELETE 請求只綁定Path parameters; 不綁定body, query parameters
+		return nil
+	default:
+		panic(fmt.Sprintf("[BindRequest]unsupported method: %s", c.Request.Method))
 	}
 }
