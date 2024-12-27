@@ -37,11 +37,15 @@ type UserRequest struct {
 	Message string `query:"message"` // query parameter ?message=hello
     Tags        []string `form:"tags" json:"tags"`        // form-data array or json array
 	file 	  *multipart.FileHeader `form:"file"` // form-data file
+	lang 	string `header:"Accept-Language"` // header parameter Accept-Language
 }
 */
 func BindRequest(c *gin.Context, request interface{}) error {
 	if err := c.ShouldBindUri(request); err != nil {
 		return fmt.Errorf("[BindRequest]failed to bind path parameters: %w", err)
+	}
+	if err := c.ShouldBindHeader(request); err != nil {
+		return fmt.Errorf("[BindRequest]failed to bind header parameters: %w", err)
 	}
 
 	switch c.Request.Method {
