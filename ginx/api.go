@@ -1,4 +1,4 @@
-package web
+package ginx
 
 import (
 	"context"
@@ -6,27 +6,20 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-
-	"go-tool/web/response"
 )
 
-type Application[REQ any, RESP any] func(ctx context.Context, request REQ) RESP
+type API[REQ any, RESP any] func(ctx context.Context, request REQ) RESP
 
-func ToHandlerFn[REQ any, RESP any](application Application[REQ, RESP]) gin.HandlerFunc {
+func ToHandlerFn[REQ any, RESP any](api API[REQ, RESP]) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var request REQ
 		if err := BindRequest(c, &request); err != nil {
 			panic(fmt.Errorf("[ToHandlerFn]failed to bind request: %w", err))
 		}
 
-		result := application(c.Request.Context(), request)
+		result := api(c.Request.Context(), request)
 
-		r := response.TResponse{
-			Success: true,
-			Data:    result,
-		}
-
-		c.JSON(http.StatusOK, r)
+		c.JSON(http.StatusOK, result)
 	}
 }
 
@@ -41,12 +34,9 @@ type UserRequest struct {
 }
 */
 func BindRequest(c *gin.Context, request interface{}) error {
-	if err := c.ShouldBindUri(request); err != nil {
-		return fmt.Errorf("[BindRequest]failed to bind path parameters: %w", err)
-	}
-	if err := c.ShouldBindHeader(request); err != nil {
-		return fmt.Errorf("[BindRequest]failed to bind header parameters: %w", err)
-	}
+	// 為何不判斷err, 因為每個should都會去判定validate, 如果用json的，前面還沒吃到值，就會validate err, 所以先不判斷err, 最後在統一判斷
+	_ = c.ShouldBindUri(request)
+	_ = c.ShouldBindHeader(request)
 
 	switch c.Request.Method {
 	case http.MethodGet:
