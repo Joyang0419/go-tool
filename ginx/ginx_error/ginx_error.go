@@ -5,7 +5,7 @@ import (
 
 	"github.com/spf13/cast"
 
-	"framework/pkg/ginx/consts"
+	"go-tool/ginx/consts"
 )
 
 type Error struct {

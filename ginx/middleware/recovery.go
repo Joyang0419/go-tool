@@ -9,8 +9,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 
-	"framework/pkg/ginx/ginx_error"
-	"framework/pkg/log"
+	"go-tool/ginx/binding/logger"
+
+	"go-tool/ginx/ginx_error"
 )
 
 func RecoveryMiddleware() gin.HandlerFunc {
@@ -57,7 +58,7 @@ func RecoveryMiddleware() gin.HandlerFunc {
 					}
 				}
 				// 印log
-				log.Error(c.Request.Context(), "[RecoveryMiddleware]Panic recovered",
+				logger.Error(c.Request.Context(), "[RecoveryMiddleware]Panic recovered",
 					zap.Any("error_location", errorLocation),
 					zap.Any("request_method", c.Request.Method),
 					zap.Any("request_url", scheme+"://"+c.Request.Host+c.Request.RequestURI),

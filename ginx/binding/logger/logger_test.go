@@ -7,8 +7,8 @@ import (
 
 	"go.uber.org/zap"
 
-	"framework/pkg/ginx/binding/logger"
-	"framework/pkg/ginx/consts"
+	"go-tool/ginx/binding/logger"
+	"go-tool/ginx/consts"
 )
 
 func TestLogger_Info(t *testing.T) {

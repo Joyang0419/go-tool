@@ -12,8 +12,8 @@ import (
 	"go.uber.org/fx"
 	"go.uber.org/zap"
 
-	"framework/pkg/ginx/binding/logger"
-	"framework/pkg/ginx/ginx_error"
+	"go-tool/ginx/binding/logger"
+	"go-tool/ginx/ginx_error"
 )
 
 func TestRegisterRouter(t *testing.T) {

@@ -3,7 +3,7 @@ package ginx
 import (
 	"go.uber.org/fx"
 
-	"framework/pkg/ginx/consts"
+	"go-tool/ginx/consts"
 )
 
 // RegisterRouter 注册路由

@@ -5,7 +5,7 @@ import (
 
 	"go.uber.org/zap"
 
-	"framework/pkg/ginx/consts"
+	"go-tool/ginx/consts"
 )
 
 /*

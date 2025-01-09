@@ -9,9 +9,9 @@ import (
 	"go.uber.org/fx"
 	"google.golang.org/grpc"
 
-	"framework/pkg/grpcx/grpcx_server/binding/logger"
+	"go-tool/grpcx/grpcx_server/binding/logger"
 
-	"framework/pkg/grpcx/grpcx_server/interceptor"
+	"go-tool/grpcx/grpcx_server/interceptor"
 )
 
 type ServerConfig struct {

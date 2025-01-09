@@ -10,7 +10,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"framework/pkg/log"
+	"go-tool/ginx/binding/logger"
 )
 
 func UnaryServerRecoveryInterceptor() grpc.UnaryServerInterceptor {
@@ -41,7 +41,7 @@ func UnaryServerRecoveryInterceptor() grpc.UnaryServerInterceptor {
 				}
 
 				// 記錄日誌
-				log.Error(ctx, "[UnaryServerRecoveryInterceptor]Panic recovered",
+				logger.Error(ctx, "[UnaryServerRecoveryInterceptor]Panic recovered",
 					zap.Any("error", r),
 					zap.String("location", location),
 					zap.String("method", info.FullMethod),

@@ -9,7 +9,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 
-	"framework/pkg/ginx/consts"
+	"go-tool/ginx/consts"
 )
 
 func Call[C any, Req any, Resp any](

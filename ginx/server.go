@@ -9,8 +9,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/fx"
 
-	"framework/pkg/ginx/binding/logger"
-	"framework/pkg/ginx/middleware"
+	"go-tool/ginx/binding/logger"
+	"go-tool/ginx/middleware"
 )
 
 type ServerConfig struct {

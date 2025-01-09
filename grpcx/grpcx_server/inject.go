@@ -4,7 +4,7 @@ import (
 	"go.uber.org/fx"
 	"google.golang.org/grpc"
 
-	"framework/pkg/grpcx/consts"
+	"go-tool/grpcx/consts"
 )
 
 type IService interface {

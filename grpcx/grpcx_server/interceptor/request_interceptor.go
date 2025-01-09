@@ -11,9 +11,9 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
-	"framework/pkg/grpcx/consts"
-	"framework/pkg/grpcx/grpcx_server/binding/logger"
-	"framework/pkg/log"
+	"go-tool/grpcx/grpcx_server/binding/logger"
+
+	"go-tool/grpcx/consts"
 )
 
 // RequestInterceptor 返回一個一元 RPC 攔截器
@@ -36,7 +36,7 @@ func RequestInterceptor() grpc.UnaryServerInterceptor {
 		latency := time.Since(startTime)
 
 		// 準備日誌字段
-		var fields []log.Field
+		var fields []zap.Field
 		fields = append(fields, zap.String("method", path.Base(info.FullMethod)))
 		fields = append(fields, zap.Any("latencySeconds", latency))
 		fields = append(fields, zap.String("traceID", trace))
