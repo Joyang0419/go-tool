@@ -1,4 +1,4 @@
-package convert_object
+package convert
 
 import (
 	"fmt"
@@ -24,4 +24,26 @@ func TestMapToStruct(t *testing.T) {
 	fmt.Println(s.Age)
 	fmt.Println(s.Name)
 	fmt.Println(s.QQ)
+}
+
+func TestMapKeys(t *testing.T) {
+	m := map[int]string{
+		1: "a",
+		2: "b",
+		3: "c",
+	}
+
+	keys := MapKeys(m)
+	fmt.Println(keys)
+}
+
+func TestMapValues(t *testing.T) {
+	m := map[int]string{
+		1: "a",
+		2: "b",
+		3: "c",
+	}
+
+	values := MapValues(m)
+	fmt.Println(values)
 }

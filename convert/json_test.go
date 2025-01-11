@@ -1,4 +1,4 @@
-package convert_object
+package convert
 
 import (
 	"fmt"

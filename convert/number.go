@@ -1,4 +1,4 @@
-package convert_number
+package convert
 
 import (
 	"github.com/spf13/cast"
