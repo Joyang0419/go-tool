@@ -6,6 +6,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
+
+	"go-tool/ginx/ginx_error"
 )
 
 type API[REQ any, RESP any] func(ctx context.Context, request REQ) RESP
@@ -14,7 +17,7 @@ func ToHandlerFn[REQ any, RESP any](api API[REQ, RESP]) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var request REQ
 		if err := BindRequest(c, &request); err != nil {
-			panic(fmt.Errorf("[ToHandlerFn]failed to bind request: %w", err))
+			panic(ginx_error.NewError(c.Request.Context(), http.StatusBadRequest, ginx_error.ClientSideBadRequestCustomCode, err))
 		}
 
 		result := api(c.Request.Context(), request)
@@ -41,13 +44,21 @@ func BindRequest(c *gin.Context, request interface{}) error {
 	switch c.Request.Method {
 	case http.MethodGet:
 		// GET 請求只綁定 query parameters; 不綁定body
+		if len(c.Request.URL.Query()) == 0 {
+			return binding.Validator.ValidateStruct(request)
+		}
 		return c.ShouldBindQuery(request)
 	case http.MethodPatch, http.MethodPost, http.MethodPut:
 		// POST, PUT, PATCH 請求綁定 body; 不綁定query parameters
+		// 檢查請求體是否為空
+		if c.Request.Body == nil || c.Request.ContentLength == 0 {
+			return binding.Validator.ValidateStruct(request)
+		}
+
 		return c.ShouldBind(request)
 	case http.MethodDelete:
 		// DELETE 請求只綁定Path parameters; 不綁定body, query parameters
-		return nil
+		return binding.Validator.ValidateStruct(request)
 	default:
 		panic(fmt.Sprintf("[BindRequest]unsupported method: %s", c.Request.Method))
 	}

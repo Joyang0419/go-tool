@@ -11,9 +11,8 @@ import (
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 
-	"go-tool/grpcx/grpcx_server/binding/logger"
-
 	"go-tool/grpcx/consts"
+	"go-tool/grpcx/grpcx_server/binding/logger"
 )
 
 // RequestInterceptor 返回一個一元 RPC 攔截器

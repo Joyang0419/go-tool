@@ -10,7 +10,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"go-tool/ginx/binding/logger"
+	"go-tool/grpcx/grpcx_server/binding/logger"
 )
 
 func UnaryServerRecoveryInterceptor() grpc.UnaryServerInterceptor {

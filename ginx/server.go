@@ -53,7 +53,7 @@ func NewServer(lc fx.Lifecycle, params ServerParams) {
 			go func() {
 				logger.Info(context.TODO(), fmt.Sprintf("[NewServer]Server is running on port %d", params.ServerConfig.Port))
 				if err := server.ListenAndServe(); err != nil {
-					panic(err)
+					logger.Error(context.TODO(), fmt.Sprintf("[NewServer]server.ListenAndServe() error: %v", err))
 				}
 			}()
 			return nil
