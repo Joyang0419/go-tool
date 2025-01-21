@@ -2,15 +2,13 @@ package interceptor
 
 import (
 	"context"
+	"log/slog"
 	"runtime/debug"
 	"strings"
 
-	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-
-	"go-tool/grpcx/grpcx_server/binding/logger"
 )
 
 func UnaryServerRecoveryInterceptor() grpc.UnaryServerInterceptor {
@@ -41,10 +39,10 @@ func UnaryServerRecoveryInterceptor() grpc.UnaryServerInterceptor {
 				}
 
 				// 記錄日誌
-				logger.Error(ctx, "[UnaryServerRecoveryInterceptor]Panic recovered",
-					zap.Any("error", r),
-					zap.String("location", location),
-					zap.String("method", info.FullMethod),
+				slog.ErrorContext(ctx, "[UnaryServerRecoveryInterceptor]Panic recovered",
+					slog.Any("error", r),
+					slog.String("location", location),
+					slog.String("method", info.FullMethod),
 				)
 
 				err = status.Errorf(codes.Internal, "Internal server error")

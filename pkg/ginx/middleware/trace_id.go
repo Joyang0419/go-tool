@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 
-	"go-tool/ginx/consts"
+	"go-tool/pkg/ginx/consts"
 )
 
 // TraceID 從 gin context 中獲取 traceId, 如果沒有，生成新的 traceId (使用 UUID)

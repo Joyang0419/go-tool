@@ -3,20 +3,19 @@ package ginx
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/fx"
 
-	"go-tool/ginx/binding/logger"
-	"go-tool/ginx/middleware"
+	"go-tool/pkg/ginx/middleware"
 )
 
 type ServerConfig struct {
-	Port            int
-	ShutdownTimeout time.Duration
-	Logger          logger.ILogger
+	Port            int           `mapstructure:"port"`
+	ShutdownTimeout time.Duration `mapstructure:"shutdown_timeout"`
 }
 
 // ServerParams 注入所需的依賴
@@ -29,10 +28,10 @@ type ServerParams struct {
 
 func NewServer(lc fx.Lifecycle, params ServerParams) {
 	engine := gin.Default()
-	engine.Use(
-		middleware.RecoveryMiddleware(),
-		middleware.TraceIDMiddleware(),
-	)
+
+	// recovery 必須放在最前面
+	engine.Use(middleware.RecoveryMiddleware())
+	engine.Use(middleware.TraceIDMiddleware())
 
 	for _, router := range params.Routers {
 		router.Routes(engine)
@@ -42,24 +41,21 @@ func NewServer(lc fx.Lifecycle, params ServerParams) {
 		Addr:    fmt.Sprintf(":%d", params.ServerConfig.Port),
 		Handler: engine,
 	}
-	if params.ServerConfig.Logger != nil {
-		logger.ChangeLogger(params.ServerConfig.Logger)
-	}
 
 	// 註冊生命週期鉤子
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
 			// 非阻塞啟動服務器
 			go func() {
-				logger.Info(context.TODO(), fmt.Sprintf("[NewServer]Server is running on port %d", params.ServerConfig.Port))
+				slog.Info(fmt.Sprintf("[NewServer]Server is running on port %d", params.ServerConfig.Port))
 				if err := server.ListenAndServe(); err != nil {
-					logger.Error(context.TODO(), fmt.Sprintf("[NewServer]server.ListenAndServe() error: %v", err))
+					slog.Error(fmt.Sprintf("[NewServer]server.ListenAndServe() error: %v", err))
 				}
 			}()
 			return nil
 		},
 		OnStop: func(ctx context.Context) error {
-			logger.Info(context.TODO(), fmt.Sprintf("[NewServer]Server is shutting down, shutdownTimeout: %v", params.ServerConfig.ShutdownTimeout))
+			slog.Info(fmt.Sprintf("[NewServer]Server is shutting down, shutdownTimeout: %v", params.ServerConfig.ShutdownTimeout))
 			ctx, cancel := context.WithTimeout(ctx, params.ServerConfig.ShutdownTimeout)
 			defer cancel()
 

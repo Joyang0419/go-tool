@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 
-	"go-tool/ginx/ginx_error"
+	"go-tool/pkg/ginx/ginx_error"
 )
 
 type API[REQ any, RESP any] func(ctx context.Context, request REQ) RESP

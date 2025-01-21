@@ -9,13 +9,13 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/pkg/errors v0.9.1
-	github.com/processout/grpc-go-pool v1.2.1
 	github.com/samber/lo v1.47.0
 	github.com/spf13/cast v1.7.1
 	go.uber.org/fx v1.23.0
 	go.uber.org/zap v1.26.0
 	golang.org/x/exp v0.0.0-20250106191152-7588d65b2ba8
 	google.golang.org/grpc v1.69.2
+	gopkg.in/natefinch/lumberjack.v2 v2.2.1
 )
 
 require (

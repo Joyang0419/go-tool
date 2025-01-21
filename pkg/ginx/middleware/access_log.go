@@ -3,23 +3,23 @@ package middleware
 import (
 	"bytes"
 	"io"
+	"log/slog"
 	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 
-	"go-tool/ginx/binding/logger"
-	"go-tool/ginx/consts"
+	"go-tool/pkg/ginx/consts"
 )
 
 func AccessLogMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 記錄請求資訊
-		fields := []zap.Field{
-			zap.String("method", c.Request.Method),
-			zap.String("path", c.Request.URL.Path),
-			zap.String("traceId", c.GetString(consts.TraceIDKey)),
+		fields := []any{
+			slog.String("method", c.Request.Method),
+			slog.String("path", c.Request.URL.Path),
+			slog.String(consts.TraceIDKey, c.GetString(consts.TraceIDKey)),
 		}
 
 		// GET 方法記錄 query parameters
@@ -43,7 +43,7 @@ func AccessLogMiddleware() gin.HandlerFunc {
 			}
 		}
 
-		logger.Info(c.Request.Context(), "[AccessLogMiddleware]Access log", fields...)
+		slog.InfoContext(c.Request.Context(), "[AccessLogMiddleware]Access log", fields...)
 		c.Next()
 	}
 }

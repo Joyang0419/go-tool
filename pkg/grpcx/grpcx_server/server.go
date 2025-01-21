@@ -3,21 +3,19 @@ package grpcx_server
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net"
 	"time"
 
 	"go.uber.org/fx"
 	"google.golang.org/grpc"
 
-	"go-tool/grpcx/grpcx_server/binding/logger"
-
-	"go-tool/grpcx/grpcx_server/interceptor"
+	"go-tool/pkg/grpcx/grpcx_server/interceptor"
 )
 
 type ServerConfig struct {
 	Port            int
 	ShutdownTimeout time.Duration
-	Logger          logger.ILogger
 }
 
 // ServerParams 注入所需的依賴
@@ -42,11 +40,6 @@ func NewServer(lc fx.Lifecycle, params ServerParams) {
 		service.Register(server)
 	}
 
-	// 設置 logger
-	if params.ServerConfig.Logger != nil {
-		logger.ChangeLogger(params.ServerConfig.Logger)
-	}
-
 	// 註冊生命週期鉤子
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
@@ -57,7 +50,7 @@ func NewServer(lc fx.Lifecycle, params ServerParams) {
 
 			// 非阻塞啟動服務器
 			go func() {
-				logger.Info(context.TODO(), fmt.Sprintf("[NewServer]Server is running on port %d", params.ServerConfig.Port))
+				slog.Info(fmt.Sprintf("[NewServer]Server is running on port %d", params.ServerConfig.Port))
 				if err = server.Serve(listener); err != nil {
 					panic(err)
 				}
@@ -80,11 +73,11 @@ func NewServer(lc fx.Lifecycle, params ServerParams) {
 			// 等待關閉完成或超時
 			select {
 			case <-ctx.Done():
-				logger.Info(context.TODO(), fmt.Sprintf("[NewServer]Server is shutting down, shutdownTimeout: %v", params.ServerConfig.ShutdownTimeout))
+				slog.Info(fmt.Sprintf("[NewServer]Server is shutting down, shutdownTimeout: %v", params.ServerConfig.ShutdownTimeout))
 				server.Stop()
 				return ctx.Err()
 			case <-done:
-				logger.Info(context.TODO(), "[NewServer]Server is GracefulStop")
+				slog.Info("[NewServer]Server is GracefulStop")
 				return nil
 			}
 		},

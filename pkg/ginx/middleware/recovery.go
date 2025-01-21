@@ -2,15 +2,15 @@ package middleware
 
 import (
 	"fmt"
+	"log/slog"
 	"net/http"
 	"runtime/debug"
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"go.uber.org/zap"
 
-	"go-tool/ginx/binding/logger"
-	"go-tool/ginx/ginx_error"
+	"go-tool/pkg/ginx/consts"
+	"go-tool/pkg/ginx/ginx_error"
 )
 
 func RecoveryMiddleware() gin.HandlerFunc {
@@ -60,30 +60,30 @@ func RecoveryMiddleware() gin.HandlerFunc {
 				if webErr.StatusCode >= http.StatusBadRequest && webErr.StatusCode < http.StatusInternalServerError {
 					// 回傳 4xx 錯誤
 					// 印log
-					logger.Error(c.Request.Context(), "[RecoveryMiddleware]client error",
-						zap.Any("error_location", errorLocation),
-						zap.Any("request_method", c.Request.Method),
-						zap.Any("request_url", scheme+"://"+c.Request.Host+c.Request.RequestURI),
-						zap.Any("client_ip", c.ClientIP()),
-						zap.Any("status_code", webErr.StatusCode),
-						zap.Any("error_code", webErr.CustomCode),
-						zap.Any("error_message", webErr.Message),
-						zap.Any("trace_id", c.GetString("traceId")),
+					slog.ErrorContext(c.Request.Context(), "[RecoveryMiddleware]client error",
+						slog.Any("error_location", errorLocation),
+						slog.Any("request_method", c.Request.Method),
+						slog.Any("request_url", scheme+"://"+c.Request.Host+c.Request.RequestURI),
+						slog.Any("client_ip", c.ClientIP()),
+						slog.Any("status_code", webErr.StatusCode),
+						slog.Any("error_code", webErr.CustomCode),
+						slog.Any("error_message", webErr.Message),
+						slog.Any(consts.TraceIDKey, c.GetString(consts.TraceIDKey)),
 					)
 					c.AbortWithStatusJSON(webErr.StatusCode, webErr)
 					return
 				}
 
 				// 印log
-				logger.Error(c.Request.Context(), "[RecoveryMiddleware]server error",
-					zap.Any("error_location", errorLocation),
-					zap.Any("request_method", c.Request.Method),
-					zap.Any("request_url", scheme+"://"+c.Request.Host+c.Request.RequestURI),
-					zap.Any("client_ip", c.ClientIP()),
-					zap.Any("status_code", webErr.StatusCode),
-					zap.Any("error_code", webErr.CustomCode),
-					zap.Any("error_message", webErr.Message),
-					zap.Any("trace_id", c.GetString("traceId")),
+				slog.ErrorContext(c.Request.Context(), "[RecoveryMiddleware]server error",
+					slog.Any("error_location", errorLocation),
+					slog.Any("request_method", c.Request.Method),
+					slog.Any("request_url", scheme+"://"+c.Request.Host+c.Request.RequestURI),
+					slog.Any("client_ip", c.ClientIP()),
+					slog.Any("status_code", webErr.StatusCode),
+					slog.Any("error_code", webErr.CustomCode),
+					slog.Any("error_message", webErr.Message),
+					slog.Any(consts.TraceIDKey, c.GetString(consts.TraceIDKey)),
 				)
 				// 回傳 500 錯誤
 				c.AbortWithStatusJSON(http.StatusInternalServerError, webErr)

@@ -4,16 +4,15 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"testing"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/fx"
-	"go.uber.org/zap"
 
-	"go-tool/ginx/binding/logger"
-	"go-tool/ginx/ginx_error"
+	"go-tool/pkg/ginx/ginx_error"
 )
 
 func TestRegisterRouter(t *testing.T) {
@@ -22,7 +21,6 @@ func TestRegisterRouter(t *testing.T) {
 		InjectServer(ServerConfig{
 			Port:            8000,
 			ShutdownTimeout: 5 * time.Second,
-			Logger:          nil,
 		}),
 	).Start(context.Background())
 
@@ -62,7 +60,7 @@ type pingResponse struct {
 // 使用者的input, 就是所有會用到 例如來自 postBody, queryParams, or uri 的資料; 全部定義在request struct裡面
 func (receiver *TestRouter) ping(ctx context.Context, request pingRequest) (response pingResponse) {
 	response.UserId = request.UserId
-	logger.Info(ctx, "ping", zap.String("userId", request.UserId))
+	slog.Info("ping", slog.String("userId", request.UserId))
 	// 順手測panic機制: 會被recovery 接到, 並且回傳500, 然後我要看會印traceId嗎? 有的話就是我要的
 	panic(ginx_error.NewError(ctx, http.StatusInternalServerError, ginx_error.ServerSideInternalErrCustomCode, fmt.Errorf("test panic")))
 	return response

@@ -12,17 +12,17 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-type ClientParams struct {
-	ClientTimeout time.Duration
-	URL           string
-	UseTLS        bool
+type Config struct {
+	Timeout time.Duration `mapstructure:"timeout"`
+	URL     string        `mapstructure:"url"`
+	UseTLS  bool          `mapstructure:"use_tls"`
 }
 
-func NewClient(params ClientParams, opt ...grpc.DialOption) (*grpc.ClientConn, error) {
+func NewClient(config Config, opt ...grpc.DialOption) (*grpc.ClientConn, error) {
 	var options []grpc.DialOption
 
 	// TLS 設定
-	if params.UseTLS {
+	if config.UseTLS {
 		creds := credentials.NewTLS(&tls.Config{InsecureSkipVerify: true})
 		options = append(options, grpc.WithTransportCredentials(creds))
 	} else {
@@ -59,15 +59,15 @@ func NewClient(params ClientParams, opt ...grpc.DialOption) (*grpc.ClientConn, e
 		))
 
 	// 創建連接
-	ctx, cancel := context.WithTimeout(context.Background(), params.ClientTimeout)
+	ctx, cancel := context.WithTimeout(context.Background(), config.Timeout)
 	defer cancel()
 
-	return grpc.DialContext(ctx, params.URL, options...)
+	return grpc.DialContext(ctx, config.URL, options...)
 }
 
-func InjectClient(params ClientParams) fx.Option {
+func InjectClient(params Config) fx.Option {
 	return fx.Options(
 		fx.Supply(params),
-		fx.Provide(NewClient),
+		fx.Provide(fx.Annotate(NewClient, fx.As(new(grpc.ClientConnInterface)))),
 	)
 }
