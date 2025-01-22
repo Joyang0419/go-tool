@@ -1,4 +1,4 @@
-package mongodb
+package infra_mongodb
 
 import (
 	"context"
@@ -12,7 +12,8 @@ import (
 
 type ConnectionConfig struct {
 	// MongoDB 連接配置
-	URI      string `mapstructure:"uri"`
+	Host     string `mapstructure:"host"`
+	Port     int    `mapstructure:"port"`
 	Database string `mapstructure:"database"`
 
 	// 認證資訊
@@ -45,13 +46,18 @@ type ConnectionConfig struct {
 func NewMongoDBConnection(config ConnectionConfig) *mongo.Database {
 	ctx := context.Background()
 
+	// 構建 MongoDB URI
+	uri := fmt.Sprintf("mongodb://%s:%s@%s:%d/%s?authSource=admin",
+		config.Auth.Username,
+		config.Auth.Password,
+		config.Host, // 需要在 ConnectionConfig 中添加
+		config.Port, // 需要在 ConnectionConfig 中添加
+		config.Database,
+	)
+
 	// 配置客戶端選項
 	clientOptions := options.Client().
-		ApplyURI(config.URI).
-		SetAuth(options.Credential{
-			Username: config.Auth.Username,
-			Password: config.Auth.Password,
-		}).
+		ApplyURI(uri).
 		SetMinPoolSize(config.Pool.MinPoolSize).
 		SetMaxPoolSize(config.Pool.MaxPoolSize).
 		SetMaxConnIdleTime(config.Pool.MaxConnIdleTime).

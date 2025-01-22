@@ -1,4 +1,4 @@
-package kafka
+package infra_kafka
 
 import (
 	"fmt"
@@ -78,7 +78,7 @@ func NewKafkaProducer(config ConnectionConfig) (sarama.SyncProducer, error) {
 
 	producer, err := sarama.NewSyncProducer(config.Brokers, kafkaConfig)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create kafka producer: %v", err)
+		return nil, fmt.Errorf("failed to create infra_kafka producer: %v", err)
 	}
 
 	return producer, nil
@@ -122,7 +122,7 @@ func NewKafkaConsumer(config ConnectionConfig) (sarama.ConsumerGroup, error) {
 
 	consumer, err := sarama.NewConsumerGroup(config.Brokers, config.Group, kafkaConfig)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create kafka consumer: %v", err)
+		return nil, fmt.Errorf("failed to create infra_kafka consumer: %v", err)
 	}
 
 	return consumer, nil

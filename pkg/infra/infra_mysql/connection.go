@@ -1,4 +1,4 @@
-package mysql
+package infra_mysql
 
 import (
 	"fmt"
@@ -58,7 +58,7 @@ func NewMYSQLConnection(config ConnectionConfig) *gorm.DB {
 
 	db, err := gorm.Open(mysql.Open(masterDSN), &gorm.Config{})
 	if err != nil {
-		panic(fmt.Sprintf("[NewMySQLDB]gorm.Open(mysql.Open(masterDSN) error: %v", err))
+		panic(fmt.Sprintf("[NewMySQLDB]gorm.Open(infra_mysql.Open(masterDSN) error: %v", err))
 	}
 
 	// 準備從庫的配置
