@@ -1,4 +1,4 @@
-package convert
+package slice_util
 
 import (
 	"time"
@@ -7,17 +7,17 @@ import (
 	"github.com/spf13/cast"
 )
 
-// SliceToMap 將 slice 轉換為 map，支援自定義 key 和 value 的轉換
-func SliceToMap[T any, K comparable, V any](slice []T, fn func(T) (K, V)) map[K]V {
+// ToMap 將 slice 轉換為 map，支援自定義 key 和 value 的轉換
+func ToMap[T any, K comparable, V any](slice []T, fn func(T) (K, V)) map[K]V {
 	return lo.Associate(slice, fn)
 }
 
-// SliceToSet 將 slice 轉換為 set
-func SliceToSet[T comparable](slice []T) []T {
+// ToSet 將 slice 轉換為 set
+func ToSet[T comparable](slice []T) []T {
 	return lo.Uniq(slice)
 }
 
-func CreateSlice[SpecType any](args ...any) []SpecType {
+func Create[SpecType any](args ...any) []SpecType {
 	slice := make([]SpecType, 0, len(args))
 
 	// 先判斷一次目標類型
@@ -69,11 +69,11 @@ func CreateSlice[SpecType any](args ...any) []SpecType {
 	return slice
 }
 
-func SliceContains[T comparable](slice []T, item T) bool {
+func Contains[T comparable](slice []T, item T) bool {
 	return lo.Contains(slice, item)
 }
 
-func SliceToSpecifiedType[T any, SpecType any](slice []T, fn func(T) SpecType) []SpecType {
+func ToSpecifiedType[T any, SpecType any](slice []T, fn func(T) SpecType) []SpecType {
 	return lo.Map(slice, func(item T, _ int) SpecType {
 		return fn(item)
 	})
