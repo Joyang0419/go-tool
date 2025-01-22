@@ -73,8 +73,9 @@ func Contains[T comparable](slice []T, item T) bool {
 	return lo.Contains(slice, item)
 }
 
-func ToSpecifiedType[T any, SpecType any](slice []T, fn func(T) SpecType) []SpecType {
-	return lo.Map(slice, func(item T, _ int) SpecType {
-		return fn(item)
+func ToSpecifiedType[T any, SpecType any](src []T) []SpecType {
+	return lo.FilterMap(src, func(item T, index int) (SpecType, bool) {
+		converted, ok := any(item).(SpecType)
+		return converted, ok
 	})
 }
