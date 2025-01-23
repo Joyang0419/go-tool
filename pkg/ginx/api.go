@@ -3,24 +3,62 @@ package ginx
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"net/http"
+	"runtime"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
+	"github.com/pkg/errors"
 
+	"go-tool/pkg/ginx/consts"
 	"go-tool/pkg/ginx/ginx_error"
 )
 
-type API[REQ any, RESP any] func(ctx context.Context, request REQ) RESP
+type API[REQ any, RESP any] func(ctx context.Context, request REQ) (RESP, error)
 
 func ToHandlerFn[REQ any, RESP any](api API[REQ, RESP]) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var request REQ
 		if err := BindRequest(c, &request); err != nil {
-			panic(ginx_error.NewError(c.Request.Context(), http.StatusBadRequest, ginx_error.ClientSideBadRequestCustomCode, err))
+			c.AbortWithStatusJSON(http.StatusBadRequest, ginx_error.NewError(c.Request.Context(), http.StatusBadRequest, ginx_error.ClientSideBadRequestCustomCode, err))
+			return
 		}
 
-		result := api(c.Request.Context(), request)
+		result, err := api(c.Request.Context(), request)
+		if err != nil {
+			var ginErr ginx_error.Error
+			if errors.As(err, &ginErr) {
+				if ginErr.StatusCode >= http.StatusInternalServerError {
+					scheme := c.GetHeader("X-Forwarded-Proto")
+					if scheme == "" {
+						if c.Request.TLS != nil {
+							scheme = "https"
+						} else {
+							scheme = "http"
+						}
+					}
+					pc, _, _, _ := runtime.Caller(1)
+					errorLocation := runtime.FuncForPC(pc).Name()
+					slog.ErrorContext(c.Request.Context(), "[ToHandlerFn]server error",
+						slog.Any("error_location", errorLocation),
+						slog.Any("request_method", c.Request.Method),
+						slog.Any("request_url", scheme+"://"+c.Request.Host+c.Request.RequestURI),
+						slog.Any("client_ip", c.ClientIP()),
+						slog.Any("status_code", ginErr.StatusCode),
+						slog.Any("error_code", ginErr.CustomCode),
+						slog.Any("error_message", ginErr.Message),
+						slog.Any(consts.TraceIDKey, c.GetString(consts.TraceIDKey)),
+					)
+				}
+
+				c.AbortWithStatusJSON(ginErr.StatusCode, ginErr)
+				return
+			}
+
+			c.AbortWithStatusJSON(http.StatusInternalServerError, ginx_error.NewError(c.Request.Context(), http.StatusInternalServerError, ginx_error.ServerSideInternalErrCustomCode, err))
+			return
+		}
 
 		c.JSON(http.StatusOK, result)
 	}
