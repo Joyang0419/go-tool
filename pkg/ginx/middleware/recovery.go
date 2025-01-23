@@ -37,16 +37,7 @@ func RecoveryMiddleware() gin.HandlerFunc {
 					}
 				}
 
-				// 轉換 error interface
-				var webErr ginx_error.Error
-				switch v := err.(type) {
-				case ginx_error.Error:
-					webErr = v
-				case *ginx_error.Error:
-					webErr = *v
-				default:
-					webErr = ginx_error.NewError(c.Request.Context(), http.StatusInternalServerError, ginx_error.ServerSideInternalErrCustomCode, fmt.Errorf("%+v", err))
-				}
+				webErr := ginx_error.NewError(c.Request.Context(), http.StatusInternalServerError, ginx_error.ServerSideInternalErrCustomCode, fmt.Errorf("%+v", err))
 
 				scheme := c.GetHeader("X-Forwarded-Proto")
 				if scheme == "" {
@@ -55,23 +46,6 @@ func RecoveryMiddleware() gin.HandlerFunc {
 					} else {
 						scheme = "http"
 					}
-				}
-
-				if webErr.StatusCode >= http.StatusBadRequest && webErr.StatusCode < http.StatusInternalServerError {
-					// 回傳 4xx 錯誤
-					// 印log
-					slog.ErrorContext(c.Request.Context(), "[RecoveryMiddleware]client error",
-						slog.Any("error_location", errorLocation),
-						slog.Any("request_method", c.Request.Method),
-						slog.Any("request_url", scheme+"://"+c.Request.Host+c.Request.RequestURI),
-						slog.Any("client_ip", c.ClientIP()),
-						slog.Any("status_code", webErr.StatusCode),
-						slog.Any("error_code", webErr.CustomCode),
-						slog.Any("error_message", webErr.Message),
-						slog.Any(consts.TraceIDKey, c.GetString(consts.TraceIDKey)),
-					)
-					c.AbortWithStatusJSON(webErr.StatusCode, webErr)
-					return
 				}
 
 				// 印log
