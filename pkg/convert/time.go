@@ -11,3 +11,8 @@ import (
 func CurrentMonthStartDay(timezone ...string) time.Time {
 	return carbon.Now(timezone...).StartOfMonth().StdTime()
 }
+
+// ParseTime 解析時間
+func ParseTime(layout string, value string) (time.Time, error) {
+	return time.Parse(layout, value)
+}
