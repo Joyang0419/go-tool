@@ -52,6 +52,7 @@ func NewManager(lc fx.Lifecycle, params ManagerParams) {
 
 	// 註冊所有任務
 	for _, job := range params.Jobs {
+		slog.Info(fmt.Sprintf("[NewManager]Registering job: %s, spec: %s", job.Name(), job.Spec()))
 		if _, err := m.cron.AddFunc(job.Spec(), func() {
 			slog.Info(fmt.Sprintf("[NewManager]Running job: %s", job.Name()))
 			if errJob := job.Run(); errJob != nil {
