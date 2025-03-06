@@ -4,6 +4,7 @@ go 1.23.2
 
 require (
 	github.com/IBM/sarama v1.45.0
+	github.com/allegro/bigcache/v3 v3.1.0
 	github.com/bytedance/sonic v1.12.7
 	github.com/dromara/carbon/v2 v2.5.2
 	github.com/gin-gonic/gin v1.10.0
@@ -15,6 +16,7 @@ require (
 	github.com/samber/lo v1.47.0
 	github.com/spf13/cast v1.7.1
 	github.com/spf13/viper v1.19.0
+	github.com/stretchr/testify v1.10.0
 	go.mongodb.org/mongo-driver v1.17.2
 	go.uber.org/fx v1.23.0
 	go.uber.org/zap v1.26.0
@@ -64,12 +66,14 @@ require (
 	github.com/montanaflynn/stats v0.7.1 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.2 // indirect
 	github.com/pierrec/lz4/v4 v4.1.22 // indirect
+	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
 	github.com/sagikazarmark/locafero v0.4.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/spf13/afero v1.11.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
+	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
