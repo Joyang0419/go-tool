@@ -52,22 +52,22 @@ func NewManager(lc fx.Lifecycle, params ManagerParams) {
 
 	// 註冊所有任務
 	for _, job := range params.Jobs {
-		slog.Info(fmt.Sprintf("[NewManager]Registering job: %s, spec: %s", job.Name(), job.Spec()))
+		slog.Info(fmt.Sprintf("NewManager Registering job: %s, spec: %s", job.Name(), job.Spec()))
 		if _, err := m.cron.AddFunc(job.Spec(), func() {
-			slog.Info(fmt.Sprintf("[NewManager]Running job: %s", job.Name()))
+			slog.Info(fmt.Sprintf("NewManager Running job: %s", job.Name()))
 			if errJob := job.Run(); errJob != nil {
-				slog.Error(fmt.Sprintf("[NewManager]Job.Run() error: %v, jobName: %s", errJob, job.Name()))
+				slog.Error(fmt.Sprintf("NewManager Job.Run() error: %v, jobName: %s", errJob, job.Name()))
 			}
-			slog.Info(fmt.Sprintf("[NewManager]Job finished: %s", job.Name()))
+			slog.Info(fmt.Sprintf("NewManager Job finished: %s", job.Name()))
 		}); err != nil {
-			slog.Error("[NewManager]m.cron.AddFunc error: %v", err)
+			slog.Error("NewManager m.cron.AddFunc error: %v", err)
 		}
 	}
 
 	// 註冊生命週期鉤子
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
-			slog.Info("[NewManager]Starting cron manager")
+			slog.Info("NewManager Starting cron manager")
 			m.Start()
 
 			// 啟動信號監聽，用於優雅停止
@@ -76,7 +76,7 @@ func NewManager(lc fx.Lifecycle, params ManagerParams) {
 				signal.Notify(signalChan, os.Interrupt, syscall.SIGTERM)
 				<-signalChan
 
-				slog.Info("[NewManager]Signal received, stopping cron manager")
+				slog.Info("NewManager Signal received, stopping cron manager")
 				stopChan := make(chan struct{})
 				go func() {
 					m.Stop()
@@ -85,16 +85,16 @@ func NewManager(lc fx.Lifecycle, params ManagerParams) {
 
 				select {
 				case <-time.After(params.Config.ShutdownTimeout):
-					slog.Error("[NewManager]Stop cron manager timeout")
+					slog.Error("NewManager Stop cron manager timeout")
 				case <-stopChan:
-					slog.Info("[NewManager]Cron manager stopped gracefully")
+					slog.Info("NewManager Cron manager stopped gracefully")
 				}
 				os.Exit(0)
 			}()
 			return nil
 		},
 		OnStop: func(ctx context.Context) error {
-			slog.Info("[NewManager]Stopping cron manager via lifecycle hook")
+			slog.Info("NewManager Stopping cron manager via lifecycle hook")
 			stopChan := make(chan struct{})
 			go func() {
 				m.Stop()
@@ -103,7 +103,7 @@ func NewManager(lc fx.Lifecycle, params ManagerParams) {
 
 			select {
 			case <-time.After(params.Config.ShutdownTimeout):
-				return pkgerrors.New("[NewManager]Stop cron manager timeout")
+				return pkgerrors.New("NewManager Stop cron manager timeout")
 			case <-stopChan:
 				return nil
 			}
