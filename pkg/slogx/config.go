@@ -9,4 +9,6 @@ type Config struct {
 	MaxAge int `mapstructure:"max_age"`
 	// CallerSkip 要跳過幾層(通常是在找caller的時候, 會用到); 目前測下來是CallerSkip: 7, 會剛好是應用層呼叫的位置
 	CallerSkip int `mapstructure:"caller_skip"`
+	// EnableWriteFile 是否要寫入檔案
+	EnableWriteFile bool `mapstructure:"enable_write_file"`
 }

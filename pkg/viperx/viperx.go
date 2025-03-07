@@ -1,10 +1,14 @@
 package viperx
 
 import (
+	"embed"
 	"fmt"
+	"log/slog"
 	"strings"
 
+	pkgerrors "github.com/pkg/errors"
 	"github.com/spf13/viper"
+	"gopkg.in/yaml.v3"
 )
 
 // LoadConfig 載入配置文件
@@ -42,6 +46,25 @@ func LoadConfig(path string, name string, configType string, config interface{})
 	if err := v.Unmarshal(config); err != nil {
 		return fmt.Errorf("[LoadConfig]v.Unmarshal: %w", err)
 	}
+
+	return nil
+}
+
+// LoadEmbeddedConfig 加载嵌入式配置文件到指定的结构体
+// config: 配置结构体的指针
+func LoadEmbeddedConfig(embed embed.FS, filename string, config interface{}) error {
+	// 读取嵌入式配置
+	data, err := embed.ReadFile(filename)
+	if err != nil {
+		return pkgerrors.Errorf("LoadEmbeddedConfig embed.ReadFile error %v", err)
+	}
+
+	// 解析YAML到结构体
+	if err = yaml.Unmarshal(data, config); err != nil {
+		return pkgerrors.Errorf("LoadEmbeddedConfig yaml.Unmarshal error %v", err)
+	}
+
+	slog.Info("LoadEmbeddedConfig success", slog.String("filename", filename))
 
 	return nil
 }

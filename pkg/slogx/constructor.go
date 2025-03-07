@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"os"
 	"runtime"
+	"strings"
 	"time"
 
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -17,8 +18,10 @@ func NewSlog(config Config) *slog.Logger {
 		os.Stdout, // 總是輸出到控制台
 	}
 
-	// 如果有path, 則輸出到檔案
-	if config.Path != "" {
+	if config.EnableWriteFile {
+		if config.Path == "" {
+			panic("NewSlog config.Path is required")
+		}
 		// 创建 lumberjack logger
 		lumberjackLogger := &lumberjack.Logger{
 			Filename:  config.Path,
@@ -30,6 +33,7 @@ func NewSlog(config Config) *slog.Logger {
 
 		writers = append(writers, lumberjackLogger)
 	}
+
 	// 创建 slog handler 选项
 	opts := &slog.HandlerOptions{
 		AddSource: true,
@@ -56,6 +60,30 @@ func NewSlog(config Config) *slog.Logger {
 						source.Line = frame.Line
 						source.Function = frame.Function
 					}
+
+					frameCopy := runtime.CallersFrames(callers[:n])
+					// 跳過自己的幀數
+					for i := 0; i <= config.CallerSkip+1; i++ {
+						_, more := frameCopy.Next()
+						if !more {
+							break
+						}
+					}
+
+					// 獲取上層的兩個調用幀
+					stackNum := 2
+					stackFrames := make([]string, 0, stackNum)
+					for i := 0; i < stackNum; i++ {
+						if frame, more := frameCopy.Next(); more {
+							stackFrames = append(stackFrames, fmt.Sprintf("%s:%d", frame.File, frame.Line))
+						}
+					}
+
+					return slog.Group("",
+						slog.String("file", fmt.Sprintf("%s:%d", source.File, source.Line)),
+						slog.String("function", source.Function),
+						slog.String("stack", strings.Join(stackFrames, ", ")),
+					)
 				}
 
 			case slog.TimeKey:

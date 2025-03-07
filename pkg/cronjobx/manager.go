@@ -60,7 +60,7 @@ func NewManager(lc fx.Lifecycle, params ManagerParams) {
 			}
 			slog.Info(fmt.Sprintf("NewManager Job finished: %s", job.Name()))
 		}); err != nil {
-			slog.Error("NewManager m.cron.AddFunc error: %v", err)
+			slog.Error(fmt.Sprintf("NewManager cron.AddFunc() error: %v, jobName: %s", err, job.Name()))
 		}
 	}
 
