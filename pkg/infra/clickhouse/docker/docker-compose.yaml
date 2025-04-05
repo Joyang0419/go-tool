@@ -1,0 +1,31 @@
+services:
+  # ClickHouse服务器
+  clickhouse-server:
+    image: clickhouse/clickhouse-server:latest
+    container_name: clickhouse-server
+    ports:
+      # http://localhost:8123/play
+      - "8123:8123"  # HTTP接口
+      - "9000:9000"  # 客户端接口
+    volumes:
+      - clickhouse-data:/var/lib/clickhouse
+      - ./docker-configs/clickhouse-config.xml:/etc/clickhouse-server/config.d/custom-config.xml
+      - ./docker-configs/users.xml:/etc/clickhouse-server/users.d/users.xml
+    environment:
+      - CLICKHOUSE_DB=trader
+      - CLICKHOUSE_USER=trader
+      - CLICKHOUSE_PASSWORD=
+      - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--spider", "--tries=1", "http://localhost:8123/ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+
+volumes:
+  clickhouse-data:

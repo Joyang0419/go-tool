@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<clickhouse>
+    <users>
+        <default>
+            <access_management>1</access_management>
+            <networks>
+                <ip>::/0</ip>
+            </networks>
+            <profile>trader</profile>
+            <quota>trader</quota>
+            <allow_databases>
+                <database>trader</database>
+            </allow_databases>
+        </default>
+    </users>
+</clickhouse>
