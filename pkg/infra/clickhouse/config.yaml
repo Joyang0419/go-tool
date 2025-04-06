@@ -19,4 +19,3 @@ clickhouse:
   # 超时设置
   dial_timeout: 10s              # 连接超时
   read_timeout: 30s              # 读取超时
-  write_timeout: 30s             # 写入超时
