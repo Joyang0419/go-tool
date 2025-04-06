@@ -6,11 +6,12 @@ import (
 	"go.uber.org/fx"
 )
 
-// InjectSlog 注入Slog
-func InjectSlog(config Config) fx.Option {
-	return fx.Options(
-		fx.Supply(config),
-		fx.Provide(NewSlog),
-		fx.Invoke(slog.SetDefault),
-	)
+// Module 注入Slog
+func Module(config Config) fx.Option {
+	var options []fx.Option
+	options = append(options, fx.Supply(config))
+	options = append(options, fx.Provide(NewSlog))
+	options = append(options, fx.Invoke(slog.SetDefault))
+
+	return fx.Module("slog", options...)
 }

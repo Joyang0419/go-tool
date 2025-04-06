@@ -13,8 +13,9 @@ func RegisterRouter(constructor any) fx.Option {
 
 // Module 注入Web 服务器
 func Module(config Config) fx.Option {
-	return fx.Options(
-		fx.Supply(config),
-		fx.Invoke(NewServer),
-	)
+	var options []fx.Option
+	options = append(options, fx.Supply(config))
+	options = append(options, fx.Invoke(NewServer))
+
+	return fx.Module("gin", options...)
 }

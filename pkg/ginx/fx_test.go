@@ -11,18 +11,17 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/fx"
-
-	"go-tool/pkg/ginx/ginx_error"
 )
 
 func TestRegisterRouter(t *testing.T) {
+	c := Config{
+		Port:            8000,
+		ShutdownTimeout: 5 * time.Second,
+		Mode:            gin.DebugMode,
+	}
 	_ = fx.New(
 		RegisterRouter(NewTestController),
-		Module(Config{
-			Port:            8000,
-			ShutdownTimeout: 5 * time.Second,
-			Mode:            gin.DebugMode,
-		}),
+		Module(c),
 	).Start(context.Background())
 
 	// 發送測試請求
@@ -62,6 +61,5 @@ type pingResponse struct {
 func (receiver *TestRouter) ping(ctx context.Context, request pingRequest) (response pingResponse, err error) {
 	response.UserId = request.UserId
 	slog.Info("ping", slog.String("userId", request.UserId))
-	// 順手測panic機制: 會被recovery 接到, 並且回傳500, 然後我要看會印traceId嗎? 有的話就是我要的
-	return response, ginx_error.NewError(ctx, http.StatusInternalServerError, ginx_error.ServerSideInternalErrCustomCode, fmt.Errorf("test panic"))
+	return response, nil
 }

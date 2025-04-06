@@ -1,6 +1,6 @@
 package consts
 
 // TraceIDKey traceId 的 key
-const TraceIDKey = "traceId"
+const TraceIDKey = "traceID"
 
 const RouterTags = `group:"routers"`

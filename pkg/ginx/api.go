@@ -98,6 +98,6 @@ func BindRequest(c *gin.Context, request interface{}) error {
 		// DELETE 請求只綁定Path parameters; 不綁定body, query parameters
 		return binding.Validator.ValidateStruct(request)
 	default:
-		panic(fmt.Sprintf("[BindRequest]unsupported method: %s", c.Request.Method))
+		panic(fmt.Sprintf("ginx.BindRequest unsupported method: %s", c.Request.Method))
 	}
 }

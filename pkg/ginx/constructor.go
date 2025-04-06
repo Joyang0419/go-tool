@@ -24,7 +24,7 @@ type Params struct {
 func NewServer(lc fx.Lifecycle, params Params) {
 	allowModes := []string{gin.DebugMode, gin.ReleaseMode, gin.TestMode}
 	if !slices.Contains(allowModes, params.Config.Mode) {
-		panic(fmt.Sprintf("ginx.NewServer gin mode %s is not allow, only allow %v", params.Config.Mode, allowModes))
+		panic(fmt.Sprintf("ginx.NewServer gin mode is not allow, only allow %v, mode: %v", allowModes, params.Config.Mode))
 	}
 
 	gin.SetMode(params.Config.Mode)
