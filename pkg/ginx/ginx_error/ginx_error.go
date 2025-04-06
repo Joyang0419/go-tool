@@ -22,7 +22,7 @@ const (
 	ClientSideBadRequestCustomCode = 4000000
 )
 
-func (receiver *Error) Error() string {
+func (receiver Error) Error() string {
 	return receiver.Message
 }
 

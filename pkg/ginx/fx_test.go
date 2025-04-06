@@ -18,9 +18,10 @@ import (
 func TestRegisterRouter(t *testing.T) {
 	_ = fx.New(
 		RegisterRouter(NewTestController),
-		InjectServer(ServerConfig{
+		Module(Config{
 			Port:            8000,
 			ShutdownTimeout: 5 * time.Second,
+			Mode:            gin.DebugMode,
 		}),
 	).Start(context.Background())
 
@@ -58,10 +59,9 @@ type pingResponse struct {
 }
 
 // 使用者的input, 就是所有會用到 例如來自 postBody, queryParams, or uri 的資料; 全部定義在request struct裡面
-func (receiver *TestRouter) ping(ctx context.Context, request pingRequest) (response pingResponse) {
+func (receiver *TestRouter) ping(ctx context.Context, request pingRequest) (response pingResponse, err error) {
 	response.UserId = request.UserId
 	slog.Info("ping", slog.String("userId", request.UserId))
 	// 順手測panic機制: 會被recovery 接到, 並且回傳500, 然後我要看會印traceId嗎? 有的話就是我要的
-	panic(ginx_error.NewError(ctx, http.StatusInternalServerError, ginx_error.ServerSideInternalErrCustomCode, fmt.Errorf("test panic")))
-	return response
+	return response, ginx_error.NewError(ctx, http.StatusInternalServerError, ginx_error.ServerSideInternalErrCustomCode, fmt.Errorf("test panic"))
 }
