@@ -45,11 +45,5 @@ func TestSliceContains(t *testing.T) {
 }
 
 func TestSliceToSpecifiedType(t *testing.T) {
-	s := Create[float64](1, 2, 3)
 
-	s2 := SliceToSpecifiedType(s, func(i float64) string {
-		return fmt.Sprintf("%f", i)
-	})
-
-	fmt.Println(s2)
 }
