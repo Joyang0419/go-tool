@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cast"
 )
 
-// ToMap 將 slice 轉換為 map，支援自定義 key 和 value 的轉換
+// ToMap 將 slice 轉換為 map_convert，支援自定義 key 和 value 的轉換
 func ToMap[T any, K comparable, V any](slice []T, fn func(T) (K, V)) map[K]V {
 	return lo.Associate(slice, fn)
 }

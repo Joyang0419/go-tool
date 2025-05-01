@@ -2,6 +2,7 @@ package ginx_error
 
 import (
 	"context"
+	"net/http"
 
 	"github.com/spf13/cast"
 
@@ -42,4 +43,8 @@ func NewError(ctx context.Context, statusCode, customCode int, err error, data .
 		Message:    err.Error(),
 		TraceID:    cast.ToString(ctx.Value(consts.TraceIDKey)),
 	}
+}
+
+func ErrorInvalidRequest(ctx context.Context, err error) Error {
+	return NewError(ctx, http.StatusBadRequest, ClientSideBadRequestCustomCode, err)
 }

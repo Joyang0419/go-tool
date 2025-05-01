@@ -5,7 +5,7 @@ import (
 	pkgerrors "github.com/pkg/errors"
 )
 
-// MapToStruct 將 map 轉換為 struct; 仿照json.Unmarshal的概念
+// MapToStruct 將 map_convert 轉換為 struct; 仿照json.Unmarshal的概念
 func MapToStruct[mapV any](m map[string]mapV, pointerVal any) error {
 	config := &mapstructure.DecoderConfig{
 		WeaklyTypedInput: true,
