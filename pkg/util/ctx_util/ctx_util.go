@@ -2,8 +2,6 @@ package ctx_util
 
 import (
 	"context"
-
-	"github.com/google/uuid"
 )
 
 // CopyContextKeys
@@ -18,6 +16,6 @@ func CopyContextKeys(src, dst context.Context, keys ...string) context.Context {
 	return dst
 }
 
-func WithTraceID(ctx context.Context) context.Context {
-	return context.WithValue(ctx, "traceId", uuid.New().String())
+func WithTraceID(ctx context.Context, traceIDKey string, traceID string) context.Context {
+	return context.WithValue(ctx, traceIDKey, traceID)
 }

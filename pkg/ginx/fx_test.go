@@ -4,13 +4,14 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"log/slog"
 	"net/http"
 	"testing"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/fx"
+
+	"go-tool/pkg/ginx/ginx_api"
 )
 
 func TestRegisterRouter(t *testing.T) {
@@ -46,20 +47,18 @@ func NewTestController() *TestRouter {
 }
 
 func (receiver *TestRouter) Routes(engine *gin.Engine) {
-	engine.GET("/ping/:userId", ToHandlerFn(receiver.ping))
+	ginx_api.New[pingSO, pingVO]().HTTPMethod(http.MethodGet).Path("/ping/:userID").Service(Service).End(engine)
 }
 
-type pingRequest struct {
-	UserId string `uri:"userId"`
+type pingSO struct {
+	UserID string `uri:"userID" log:"true"`
 }
 
-type pingResponse struct {
-	UserId string `json:"userId"`
+type pingVO struct {
+	UserID string `json:"userID"`
 }
 
-// 使用者的input, 就是所有會用到 例如來自 postBody, queryParams, or uri 的資料; 全部定義在request struct裡面
-func (receiver *TestRouter) ping(ctx context.Context, request pingRequest) (response pingResponse, err error) {
-	response.UserId = request.UserId
-	slog.Info("ping", slog.String("userId", request.UserId))
-	return response, nil
+func Service(ctx context.Context, so pingSO) (vo pingVO, err error) {
+	vo.UserID = so.UserID
+	return vo, nil
 }
