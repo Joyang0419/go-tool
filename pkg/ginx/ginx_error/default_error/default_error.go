@@ -1,8 +1,13 @@
 package default_error
 
 import (
+	"context"
 	"fmt"
 
+	"github.com/samber/lo"
+	"github.com/spf13/cast"
+
+	"go-tool/pkg/ginx/consts"
 	"go-tool/pkg/ginx/ginx_error"
 )
 
@@ -12,6 +17,15 @@ type DefaultError struct {
 	Message    string      `json:"message"`
 	Data       interface{} `json:"data"`
 	TraceID    string      `json:"traceID"`
+}
+
+func New(ctx context.Context, statusCode, customCode int, message ...string) DefaultError {
+	return DefaultError{
+		StatusCode: statusCode,
+		CustomCode: customCode,
+		Message:    lo.Ternary(len(message) > 0, message[0], ""),
+		TraceID:    cast.ToString(ctx.Value(consts.TraceIDKey)),
+	}
 }
 
 func (receiver DefaultError) Error() string {
