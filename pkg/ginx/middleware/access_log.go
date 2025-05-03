@@ -43,7 +43,7 @@ func AccessLogMiddleware() gin.HandlerFunc {
 			}
 		}
 
-		slog.InfoContext(c.Request.Context(), "[AccessLogMiddleware]Access log", fields...)
+		slog.InfoContext(c.Request.Context(), "AccessLogMiddleware Access log", fields...)
 		c.Next()
 	}
 }

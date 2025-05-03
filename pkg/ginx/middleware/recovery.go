@@ -50,7 +50,7 @@ func RecoveryMiddleware() gin.HandlerFunc {
 				}
 
 				// 印log
-				slog.ErrorContext(c.Request.Context(), "[RecoveryMiddleware]server error",
+				slog.ErrorContext(c.Request.Context(), "RecoveryMiddleware server error",
 					slog.Any("traceID", traceID),
 					slog.Any("error_location", errorLocation),
 					slog.Any("request_method", c.Request.Method),

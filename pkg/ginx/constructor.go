@@ -34,6 +34,7 @@ func NewServer(lc fx.Lifecycle, params Params) {
 	// recovery 必須放在最前面
 	engine.Use(middleware.RecoveryMiddleware())
 	engine.Use(middleware.TraceIDMiddleware())
+	engine.Use(middleware.ErrorMiddleware())
 
 	for _, router := range params.Routers {
 		router.Routes(engine)
