@@ -5,4 +5,5 @@ type IGinxError interface {
 	HTTPStatusCode() int
 	Response() interface{}
 	SetTraceID(traceID string) IGinxError
+	TraceID() string
 }

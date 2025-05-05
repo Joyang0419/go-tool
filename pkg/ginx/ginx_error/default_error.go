@@ -1,14 +1,14 @@
-package default_error
+package ginx_error
 
 import (
 	"context"
 	"fmt"
+	"net/http"
 
 	"github.com/samber/lo"
 	"github.com/spf13/cast"
 
 	"go-tool/pkg/ginx/consts"
-	"go-tool/pkg/ginx/ginx_error"
 )
 
 type DefaultError struct {
@@ -16,7 +16,7 @@ type DefaultError struct {
 	CustomCode int         `json:"customCode"`
 	Message    string      `json:"message"`
 	Data       interface{} `json:"data"`
-	TraceID    string      `json:"traceID"`
+	traceID    string      `json:"traceID"`
 }
 
 func New(ctx context.Context, statusCode, customCode int, message ...string) DefaultError {
@@ -24,7 +24,7 @@ func New(ctx context.Context, statusCode, customCode int, message ...string) Def
 		StatusCode: statusCode,
 		CustomCode: customCode,
 		Message:    lo.Ternary(len(message) > 0, message[0], ""),
-		TraceID:    cast.ToString(ctx.Value(consts.TraceIDKey)),
+		traceID:    cast.ToString(ctx.Value(consts.TraceIDKey)),
 	}
 }
 
@@ -41,10 +41,14 @@ func (receiver DefaultError) Response() interface{} {
 	return receiver
 }
 
-func (receiver DefaultError) SetTraceID(traceID string) ginx_error.IGinxError {
-	receiver.TraceID = traceID
+func (receiver DefaultError) SetTraceID(traceID string) IGinxError {
+	receiver.traceID = traceID
 
 	return receiver
+}
+
+func (receiver DefaultError) TraceID() string {
+	return receiver.traceID
 }
 
 const (
@@ -53,4 +57,9 @@ const (
 
 const (
 	CustomCodeClientSideBadRequest = 400000
+)
+
+var (
+	ErrPanic    IGinxError = DefaultError{StatusCode: http.StatusInternalServerError, CustomCode: CustomCodeServerSideServerError}
+	ErrParsedSO IGinxError = DefaultError{StatusCode: http.StatusBadRequest, CustomCode: CustomCodeClientSideBadRequest}
 )

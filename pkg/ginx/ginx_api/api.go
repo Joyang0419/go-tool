@@ -13,7 +13,7 @@ import (
 	"github.com/spf13/cast"
 
 	"go-tool/pkg/ginx/consts"
-	"go-tool/pkg/ginx/ginx_error/setup"
+	"go-tool/pkg/ginx/ginx_error"
 )
 
 type TService[TSO any, TVO any] func(ctx context.Context, so TSO) (vo TVO, err error)
@@ -75,7 +75,7 @@ func (receiver *API[TSO, TVO]) End(engine *gin.Engine) {
 				slog.String("path", receiver.path),
 			)
 
-			_ = c.Error(setup.ErrParsedSO.SetTraceID(cast.ToString(c.Request.Context().Value(consts.TraceIDKey))))
+			_ = c.Error(ginx_error.ErrParsedSO.SetTraceID(cast.ToString(c.Request.Context().Value(consts.TraceIDKey))))
 			return
 		}
 

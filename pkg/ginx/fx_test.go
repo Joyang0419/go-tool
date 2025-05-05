@@ -51,7 +51,7 @@ func (receiver *TestRouter) Routes(engine *gin.Engine) {
 }
 
 type pingSO struct {
-	UserID string `uri:"userID" log:"true"`
+	UserID string `uri:"userID" log:"true" binding:"required"`
 }
 
 type pingVO struct {

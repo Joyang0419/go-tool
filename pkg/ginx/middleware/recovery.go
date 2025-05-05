@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/cast"
 
 	"go-tool/pkg/ginx/consts"
-	"go-tool/pkg/ginx/ginx_error/setup"
+	"go-tool/pkg/ginx/ginx_error"
 )
 
 func RecoveryMiddleware() gin.HandlerFunc {
@@ -38,7 +38,7 @@ func RecoveryMiddleware() gin.HandlerFunc {
 				}
 
 				traceID := cast.ToString(c.Request.Context().Value(consts.TraceIDKey))
-				panicErrResp := setup.ErrPanic.SetTraceID(traceID)
+				panicErrResp := ginx_error.ErrPanic.SetTraceID(traceID)
 
 				scheme := c.GetHeader("X-Forwarded-Proto")
 				if scheme == "" {
