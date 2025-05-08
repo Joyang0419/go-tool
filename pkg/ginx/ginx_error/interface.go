@@ -2,8 +2,10 @@ package ginx_error
 
 type IGinxError interface {
 	Error() string
-	HTTPStatusCode() int
+	SetStatusCode(int) IGinxError
+	StatusCode() int
 	Response() interface{}
 	SetTraceID(traceID string) IGinxError
-	TraceID() string
+	SetActualError(err error) IGinxError
+	SetDisableStackTrace() IGinxError
 }

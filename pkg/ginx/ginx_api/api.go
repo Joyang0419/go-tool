@@ -12,14 +12,14 @@ import (
 	"github.com/samber/lo"
 	"github.com/spf13/cast"
 
-	"go-tool/pkg/ginx/consts"
+	"go-tool/pkg/ginx/ginx_consts"
 	"go-tool/pkg/ginx/ginx_error"
 )
 
 type TService[TSO any, TVO any] func(ctx context.Context, so TSO) (vo TVO, err error)
 
 type API[TSO, TVO any] struct {
-	httpMethod     string
+	method         string
 	path           string
 	service        TService[TSO, TVO]
 	beforeHandlers []gin.HandlerFunc
@@ -30,8 +30,8 @@ func New[TSO, TVO any]() *API[TSO, TVO] {
 	return &API[TSO, TVO]{}
 }
 
-func (receiver *API[TSO, TVO]) HTTPMethod(httpMethod string) *API[TSO, TVO] {
-	receiver.httpMethod = httpMethod
+func (receiver *API[TSO, TVO]) Method(method string) *API[TSO, TVO] {
+	receiver.method = method
 
 	return receiver
 }
@@ -62,7 +62,7 @@ func (receiver *API[TSO, TVO]) AfterHandlers(handlers ...gin.HandlerFunc) *API[T
 
 func (receiver *API[TSO, TVO]) End(engine *gin.Engine) {
 	if lo.IsNil(receiver.service) {
-		panic(fmt.Sprintf("API service is nil, path: %s, method: %s", receiver.path, receiver.httpMethod))
+		panic(fmt.Sprintf("API service is nil, path: %s, method: %s", receiver.path, receiver.method))
 	}
 
 	mainHandlerFn := func(c *gin.Context) {
@@ -71,11 +71,11 @@ func (receiver *API[TSO, TVO]) End(engine *gin.Engine) {
 			slog.ErrorContext(
 				c.Request.Context(), "API BindRequest error",
 				slog.Any("error", err),
-				slog.String("method", receiver.httpMethod),
+				slog.String("method", receiver.method),
 				slog.String("path", receiver.path),
 			)
 
-			_ = c.Error(ginx_error.ErrParsedSO.SetTraceID(cast.ToString(c.Request.Context().Value(consts.TraceIDKey))))
+			_ = c.Error(ginx_error.ErrBadParam.SetTraceID(cast.ToString(c.Request.Context().Value(ginx_consts.TraceIDKey))))
 			return
 		}
 
@@ -96,7 +96,7 @@ func (receiver *API[TSO, TVO]) End(engine *gin.Engine) {
 			slog.ErrorContext(
 				c.Request.Context(), "API Service error",
 				slog.Any("error", err),
-				slog.String("method", receiver.httpMethod),
+				slog.String("method", receiver.method),
 				slog.String("path", receiver.path),
 			)
 
@@ -110,7 +110,7 @@ func (receiver *API[TSO, TVO]) End(engine *gin.Engine) {
 	handlerFns := append(receiver.beforeHandlers, mainHandlerFn)
 	handlerFns = append(handlerFns, receiver.afterHandlers...)
 
-	engine.Handle(receiver.httpMethod, receiver.path, handlerFns...)
+	engine.Handle(receiver.method, receiver.path, handlerFns...)
 }
 
 // 通用函數來提取帶有 log:"true" 標籤的字段

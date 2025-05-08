@@ -10,15 +10,16 @@ import (
 	"go.uber.org/fx"
 	"golang.org/x/exp/slices"
 
-	"go-tool/pkg/ginx/middleware"
+	"go-tool/pkg/ginx/ginx_middleware"
 )
 
 // Params 注入所需的依賴
 type Params struct {
 	fx.In
 
-	Config  Config
-	Routers []IRouter `group:"routers"`
+	Config      Config
+	Routers     []IRouter     `group:"routers"`
+	Middlewares []IMiddleware `group:"middlewares"`
 }
 
 func NewServer(lc fx.Lifecycle, params Params) {
@@ -32,9 +33,13 @@ func NewServer(lc fx.Lifecycle, params Params) {
 	engine := gin.Default()
 
 	// recovery 必須放在最前面
-	engine.Use(middleware.RecoveryMiddleware())
-	engine.Use(middleware.TraceIDMiddleware())
-	engine.Use(middleware.ErrorMiddleware())
+	engine.Use(ginx_middleware.RecoveryMiddleware())
+	engine.Use(ginx_middleware.TraceIDMiddleware())
+	engine.Use(ginx_middleware.ErrorMiddleware())
+
+	for _, middleware := range params.Middlewares {
+		engine.Use(middleware.HandlerFunc())
+	}
 
 	for _, router := range params.Routers {
 		router.Routes(engine)

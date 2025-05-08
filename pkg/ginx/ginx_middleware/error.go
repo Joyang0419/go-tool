@@ -1,4 +1,4 @@
-package middleware
+package ginx_middleware
 
 import (
 	"log/slog"
@@ -31,7 +31,7 @@ func ErrorMiddleware() gin.HandlerFunc {
 		err := c.Errors[0].Err
 		var errGinx ginx_error.IGinxError
 		if errors.As(err, &errGinx) {
-			c.AbortWithStatusJSON(errGinx.HTTPStatusCode(), errGinx.Response())
+			c.AbortWithStatusJSON(errGinx.StatusCode(), errGinx.Response())
 			return
 		}
 

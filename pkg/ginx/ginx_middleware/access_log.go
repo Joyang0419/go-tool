@@ -1,4 +1,4 @@
-package middleware
+package ginx_middleware
 
 import (
 	"bytes"
@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 
-	"go-tool/pkg/ginx/consts"
+	"go-tool/pkg/ginx/ginx_consts"
 )
 
 func AccessLogMiddleware() gin.HandlerFunc {
@@ -19,7 +19,7 @@ func AccessLogMiddleware() gin.HandlerFunc {
 		fields := []any{
 			slog.String("method", c.Request.Method),
 			slog.String("path", c.Request.URL.Path),
-			slog.String(consts.TraceIDKey, c.GetString(consts.TraceIDKey)),
+			slog.String(ginx_consts.TraceIDKey, c.GetString(ginx_consts.TraceIDKey)),
 		}
 
 		// GET 方法記錄 query parameters

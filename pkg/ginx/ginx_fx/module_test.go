@@ -1,4 +1,4 @@
-package ginx
+package ginx_fx
 
 import (
 	"context"
@@ -11,11 +11,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.uber.org/fx"
 
+	"go-tool/pkg/ginx"
 	"go-tool/pkg/ginx/ginx_api"
 )
 
 func TestRegisterRouter(t *testing.T) {
-	c := Config{
+	c := ginx.Config{
 		Port:            8000,
 		ShutdownTimeout: 5 * time.Second,
 		Mode:            gin.DebugMode,
@@ -47,7 +48,7 @@ func NewTestController() *TestRouter {
 }
 
 func (receiver *TestRouter) Routes(engine *gin.Engine) {
-	ginx_api.New[pingSO, pingVO]().HTTPMethod(http.MethodGet).Path("/ping/:userID").Service(Service).End(engine)
+	ginx_api.New[pingSO, pingVO]().Method(http.MethodGet).Path("/ping/:userID").Service(Service).End(engine)
 }
 
 type pingSO struct {

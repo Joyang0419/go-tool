@@ -1,4 +1,4 @@
-package middleware
+package ginx_middleware
 
 import (
 	"log/slog"
@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cast"
 
-	"go-tool/pkg/ginx/consts"
+	"go-tool/pkg/ginx/ginx_consts"
 	"go-tool/pkg/ginx/ginx_error"
 )
 
@@ -37,7 +37,7 @@ func RecoveryMiddleware() gin.HandlerFunc {
 					}
 				}
 
-				traceID := cast.ToString(c.Request.Context().Value(consts.TraceIDKey))
+				traceID := cast.ToString(c.Request.Context().Value(ginx_consts.TraceIDKey))
 				panicErrResp := ginx_error.ErrPanic.SetTraceID(traceID)
 
 				scheme := c.GetHeader("X-Forwarded-Proto")
@@ -57,7 +57,7 @@ func RecoveryMiddleware() gin.HandlerFunc {
 					slog.Any("request_url", scheme+"://"+c.Request.Host+c.Request.RequestURI),
 					slog.Any("client_ip", c.ClientIP()),
 					slog.Any("panicErrResp", panicErrResp),
-					slog.Any(consts.TraceIDKey, c.GetString(consts.TraceIDKey)),
+					slog.Any(ginx_consts.TraceIDKey, c.GetString(ginx_consts.TraceIDKey)),
 				)
 				// 回傳 500 錯誤
 				c.AbortWithStatusJSON(http.StatusInternalServerError, panicErrResp)

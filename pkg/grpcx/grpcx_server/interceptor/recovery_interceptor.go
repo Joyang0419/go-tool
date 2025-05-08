@@ -28,7 +28,7 @@ func UnaryServerRecoveryInterceptor() grpc.UnaryServerInterceptor {
 						!strings.Contains(line, "runtime/") &&
 						!strings.Contains(line, "grpc/") &&
 						!strings.Contains(line, ".pb.go") &&
-						!strings.Contains(line, "go-framework") {
+						!strings.Contains(line, "go-go-tool") {
 						if idx := strings.Index(line, " +0x"); idx != -1 {
 							location = strings.TrimSpace(line[:idx])
 						} else {
