@@ -31,18 +31,18 @@ func NewRestyClient(config Config) *Client {
 	return &Client{client: client}
 }
 
-var _ http_client.IClient = (*Client)(nil)
+var _ http_client.IClient[*resty.Client] = (*Client)(nil)
 
 func (receiver *Client) Request(ctx context.Context, param http_client.RequestParam) (*http.Response, error) {
-	restyResp, err := receiver.client.NewRequest().
+	request := receiver.client.NewRequest().
 		SetContext(ctx).
 		SetHeaders(param.Headers).
 		SetPathParams(param.PathParams).
 		SetQueryParams(param.QueryParams).
-		SetBody(param.Body).
 		SetResult(param.SuccessResponse).
-		SetError(param.ErrorResponse).
-		Execute(param.Method, param.URL)
+		SetError(param.ErrorResponse)
+
+	restyResp, err := request.Execute(param.Method, param.URL)
 	if err != nil {
 		slog.ErrorContext(ctx, "resty.Client.NewRequest error",
 			slog.Any("error", err.Error()),
@@ -53,4 +53,8 @@ func (receiver *Client) Request(ctx context.Context, param http_client.RequestPa
 	}
 
 	return restyResp.RawResponse, nil
+}
+
+func (receiver *Client) GetClient() *resty.Client {
+	return receiver.client
 }
