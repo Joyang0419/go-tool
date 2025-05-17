@@ -16,7 +16,8 @@ func EachResponseLog(c *resty.Client, resp *resty.Response) error {
 
 func OnErrorLog(c *resty.Request, err error) {
 	slog.ErrorContext(
-		c.Context(), "resty.OnErrorLog error",
+		c.Context(),
+		"resty.OnErrorLog error",
 		slog.Any("error", err),
 		slog.String("url", c.URL),
 		slog.String("method", c.Method),
