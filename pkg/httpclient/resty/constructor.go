@@ -20,21 +20,20 @@ func NewHTTPClient(config httpclient.Config) httpclient.IHTTPClient[*resty.Clien
 	client := resty.New()
 	client.SetBaseURL(config.BaseURL)
 
-	if config.EnableBeforeRequestLog {
+	if config.EnableTrace {
+		client.EnableTrace()
 		client.OnBeforeRequest(EachRequestLog)
-	}
-	if config.EnableAfterResponseLog {
 		client.OnAfterResponse(EachResponseLog)
 	}
 
-	client.OnError(OnErrorLog)
+	client.OnError(OnErrorLog(config.BaseURL))
 
 	return &Client{client: client}
 }
 
 func (receiver *Client) Request(ctx context.Context, param httpclient.RequestParam) (*http.Response, error) {
 	if param.DisableLogResponseData {
-		ctx = context.WithValue(ctx, consts.DisableLogRespData, true)
+		ctx = context.WithValue(ctx, consts.DisableLogRespData, struct{}{})
 	}
 	response, err := receiver.client.
 		NewRequest().
@@ -61,7 +60,7 @@ func (receiver *Client) Request(ctx context.Context, param httpclient.RequestPar
 
 func (receiver *Client) UploadFile(ctx context.Context, param httpclient.FileUploadParam) (*http.Response, error) {
 	if param.DisableLogResponseData {
-		ctx = context.WithValue(ctx, consts.DisableLogRespData, true)
+		ctx = context.WithValue(ctx, consts.DisableLogRespData, struct{}{})
 	}
 	req := receiver.client.
 		NewRequest().
