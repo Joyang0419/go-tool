@@ -1,4 +1,4 @@
-package fx
+package inject
 
 import (
 	"go.uber.org/fx"
@@ -7,8 +7,8 @@ import (
 	"go-tool/pkg/httpclient/resty"
 )
 
-// Module 注入Web 服务器
-func Module(config httpclient.Config) fx.Option {
+// FXModule 注入Web 服务器
+func FXModule(config httpclient.Config) fx.Option {
 	var options []fx.Option
 	options = append(options, fx.Supply(config))
 	options = append(options, fx.Provide(resty.NewHTTPClient))

@@ -8,15 +8,16 @@ import (
 	"github.com/samber/lo"
 
 	"go-tool/pkg/httpclient/consts"
+	"go-tool/pkg/httpclient/logger"
 )
 
 func EachRequestLog(client *resty.Client, request *resty.Request) error {
 	_ = client
 	// 取得完整 URL
 	fullURL := fmt.Sprintf("%s%s", client.BaseURL, request.URL)
-	slog.InfoContext(
+	logger.Log.InfoContext(
 		request.Context(),
-		"resty.EachRequestLog.info",
+		"resty.EachRequestLog",
 		slog.String("url", fullURL),
 		slog.String("method", request.Method),
 		slog.Any("header", request.Header),
@@ -38,26 +39,40 @@ func EachResponseLog(client *resty.Client, response *resty.Response) error {
 		slog.String("url", fullURL),
 		slog.String("method", response.Request.Method),
 		slog.Any("header", response.Request.Header),
-		slog.Any("body", response.Request.Body),
+		slog.Any("requestBody", response.Request.Body),
 		slog.Any("queryParam", response.Request.QueryParam),
 		slog.Any("pathParam", response.Request.PathParams),
 		slog.Any("formData", response.Request.FormData),
-		slog.Duration("responseTime", response.Time()),
+		slog.Float64("responseTime", response.Time().Seconds()),
 	}
 	if traceInfo.TotalTime > 0 {
-		slogAttrs = append(slogAttrs, slog.Any("traceInfo", traceInfo))
+		slogAttrs = append(
+			slogAttrs,
+			slog.Float64("dnsLookup", traceInfo.DNSLookup.Seconds()),
+			slog.Float64("connTime", traceInfo.ConnTime.Seconds()),
+			slog.Float64("tcpConnTime", traceInfo.TCPConnTime.Seconds()),
+			slog.Float64("tlsHandshake", traceInfo.TLSHandshake.Seconds()),
+			slog.Float64("serverTime", traceInfo.ServerTime.Seconds()),
+			slog.Float64("responseTime", traceInfo.ResponseTime.Seconds()),
+			slog.Float64("totalTime", traceInfo.TotalTime.Seconds()),
+			slog.Float64("connIdleTime", traceInfo.ConnIdleTime.Seconds()),
+			slog.Bool("isConnReused", traceInfo.IsConnReused),
+			slog.Bool("isConnWasIdle", traceInfo.IsConnWasIdle),
+			slog.Int("requestAttempt", traceInfo.RequestAttempt),
+			slog.String("remoteAddr", traceInfo.RemoteAddr.String()),
+		)
 	}
 
 	isNeedLogResponseData := lo.IsNil(ctx.Value(consts.DisableLogRespData))
 	if isNeedLogResponseData {
 		slogAttrs = append(
 			slogAttrs,
-			slog.String("body", string(response.Body())),
+			slog.String("responseBody", string(response.Body())),
 		)
 	}
 
 	if response.StatusCode() >= 300 {
-		slog.ErrorContext(
+		logger.Log.ErrorContext(
 			ctx,
 			"resty.EachResponseLog.error",
 			slogAttrs...,
@@ -66,9 +81,9 @@ func EachResponseLog(client *resty.Client, response *resty.Response) error {
 		return nil
 	}
 
-	slog.InfoContext(
+	logger.Log.InfoContext(
 		ctx,
-		"resty.EachResponseLog.info",
+		"resty.EachResponseLog",
 		slogAttrs...,
 	)
 
@@ -88,14 +103,14 @@ OnErrorLog 在 Resty 请求过程中发生错误时被调用的回调函数
 func OnErrorLog(baseURL string) resty.ErrorHook {
 	return func(request *resty.Request, err error) {
 		fullURL := fmt.Sprintf("%s%s", baseURL, request.URL)
-		slog.ErrorContext(
+		logger.Log.ErrorContext(
 			request.Context(),
 			"resty.OnErrorLog.error",
 			slog.Any("error", err),
 			slog.String("url", fullURL),
 			slog.String("method", request.Method),
 			slog.Any("header", request.Header),
-			slog.Any("body", request.Body),
+			slog.Any("requestBody", request.Body),
 			slog.Any("queryParam", request.QueryParam),
 			slog.Any("pathParam", request.PathParams),
 			slog.Any("formData", request.FormData),

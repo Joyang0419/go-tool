@@ -10,7 +10,7 @@ type IHTTPClient[TClient any] interface {
 	// Request 通用請求方法
 	Request(ctx context.Context, param RequestParam) (response *http.Response, err error)
 	// Client 原生客戶端獲取
-	Client() TClient
+	Client() *TClient
 	// UploadFile 文件上傳方法
 	UploadFile(ctx context.Context, param FileUploadParam) (*http.Response, error)
 }
@@ -39,6 +39,8 @@ type BaseParam struct {
 	ErrorResponse   interface{}
 	// DisableResponseData 避免資料太多也在印
 	DisableLogResponseData bool
+	// RetryConfig 有設定，就是要失敗時，會依照設定值Retry
+	RetryConfig *RetryConfig
 }
 
 // FileInfo 文件信息
