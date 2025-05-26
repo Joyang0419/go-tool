@@ -4,7 +4,7 @@ import (
 	"context"
 )
 
-type ILogger interface {
+type Interface interface {
 	Info(msg string, args ...any)
 	InfoContext(ctx context.Context, msg string, args ...any)
 	Error(msg string, args ...any)

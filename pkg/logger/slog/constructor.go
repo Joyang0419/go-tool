@@ -79,7 +79,7 @@ type slogLogger struct {
 	logger *slog.Logger
 }
 
-func NewSlogLogger(l *slog.Logger) logger.ILogger {
+func NewSlogLogger(l *slog.Logger) logger.Interface {
 	return &slogLogger{logger: l}
 }
 

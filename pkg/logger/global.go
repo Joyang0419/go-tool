@@ -12,7 +12,7 @@ import (
 
 var (
 	// Log 有 Default Log, 透過Init的, 一次性替換
-	Log ILogger = slog.New(
+	Log Interface = slog.New(
 		slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
 			AddSource: true,
 			Level:     slog.LevelInfo,
@@ -22,7 +22,7 @@ var (
 )
 
 // Init 一次性初始化 Logger
-func Init(logger ILogger) {
+func Init(logger Interface) {
 	onceDoFn := func() {
 		Log = logger
 	}
