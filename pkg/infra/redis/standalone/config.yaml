@@ -1,0 +1,19 @@
+redis:
+  # 基本連接
+  address: "localhost:6379"
+  client_name: "my-app"
+  username: ""
+  password: "your-password"
+  db: 0
+
+  # 超時設定
+  dial_timeout: 5s
+  read_timeout: 3s
+  write_timeout: 3s
+
+  # 連接池
+  pool_size: 20
+  pool_timeout: 5s
+  min_idle_conns: 2
+  max_idle_conns: 10
+  conn_max_idle_time: 30m

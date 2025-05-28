@@ -74,7 +74,7 @@ func EachResponseLog(client *resty.Client, response *resty.Response) error {
 	if response.StatusCode() >= 300 {
 		logger.Log.ErrorContext(
 			ctx,
-			"resty.EachResponseLog.error",
+			"resty.EachResponseLog",
 			slogAttrs...,
 		)
 
@@ -105,7 +105,7 @@ func OnErrorLog(baseURL string) resty.ErrorHook {
 		fullURL := fmt.Sprintf("%s%s", baseURL, request.URL)
 		logger.Log.ErrorContext(
 			request.Context(),
-			"resty.OnErrorLog.error",
+			"resty.OnErrorLog",
 			slog.Any("error", err),
 			slog.String("url", fullURL),
 			slog.String("method", request.Method),

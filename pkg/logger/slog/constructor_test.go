@@ -1,4 +1,4 @@
-package slogx
+package slog
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 )
 
 func TestNewSlog(t *testing.T) {
-	logger := NewSlog(Config{
+	logger := New(Config{
 		Path:    "",
 		MaxSize: 0,
 		MaxAge:  0,
@@ -21,7 +21,7 @@ func TestNewSlog(t *testing.T) {
 }
 
 func TestNewLogCtx(t *testing.T) {
-	l := NewSlog(
+	l := New(
 		Config{
 			Path:    "",
 			MaxSize: 0,

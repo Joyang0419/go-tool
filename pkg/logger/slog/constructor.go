@@ -1,4 +1,4 @@
-package slogx
+package slog
 
 import (
 	"context"
@@ -14,14 +14,14 @@ import (
 	"go-tool/pkg/logger/consts"
 )
 
-func NewSlog(config Config) *slog.Logger {
+func New(config Config) *slog.Logger {
 	writers := []io.Writer{
 		os.Stdout, // 總是輸出到控制台
 	}
 
 	if config.EnableWriteFile {
 		if config.Path == "" {
-			panic("NewSlog config.Path is required")
+			panic("slog.New config.Path is required")
 		}
 		// 创建 lumberjack logger
 		lumberjackLogger := &lumberjack.Logger{
@@ -58,7 +58,7 @@ func NewSlog(config Config) *slog.Logger {
 	}
 
 	l := slog.New(&CustomHandler{Handler: slog.NewJSONHandler(io.MultiWriter(writers...), opts)})
-	slog.SetDefault(l)
+	logger.Init(l)
 
 	return l
 }
@@ -72,29 +72,4 @@ func (receiver *CustomHandler) Handle(ctx context.Context, r slog.Record) error 
 		r.Add(slog.String(consts.TraceIDKey, fmt.Sprint(traceID)))
 	}
 	return receiver.Handler.Handle(ctx, r)
-}
-
-// constructor.go - 加在文件最後
-type slogLogger struct {
-	logger *slog.Logger
-}
-
-func NewSlogLogger(l *slog.Logger) logger.Interface {
-	return &slogLogger{logger: l}
-}
-
-func (s *slogLogger) Info(msg string, args ...any) {
-	s.logger.Log(context.Background(), slog.LevelInfo, msg, args...)
-}
-
-func (s *slogLogger) InfoContext(ctx context.Context, msg string, args ...any) {
-	s.logger.Log(ctx, slog.LevelInfo, msg, args...)
-}
-
-func (s *slogLogger) Error(msg string, args ...any) {
-	s.logger.Log(context.Background(), slog.LevelError, msg, args...)
-}
-
-func (s *slogLogger) ErrorContext(ctx context.Context, msg string, args ...any) {
-	s.logger.Log(ctx, slog.LevelError, msg, args...)
 }

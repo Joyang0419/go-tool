@@ -2,6 +2,7 @@ package gorm
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"time"
 
@@ -23,7 +24,7 @@ func New(config Config) gormLogger.Interface {
 		config.Logger = logger.Log
 	}
 	if config.SlowThreshold == 0 {
-		config.SlowThreshold = 500 * time.Millisecond
+		config.SlowThreshold = 5000 * time.Millisecond
 	}
 
 	adapter.config = config
@@ -31,21 +32,23 @@ func New(config Config) gormLogger.Interface {
 	return adapter
 }
 
-func (receiver *Adapter) LogMode(level gormLogger.LogLevel) gormLogger.Interface {
-	// 創建新的適配器實例
+func (receiver *Adapter) LogMode(gormLogger.LogLevel) gormLogger.Interface {
 	return receiver
 }
 
 func (receiver *Adapter) Info(ctx context.Context, msg string, args ...interface{}) {
-	receiver.config.Logger.InfoContext(ctx, msg, "gorm_info", args)
+	msg = fmt.Sprintf("gorm.Info msg: %s", msg)
+	receiver.config.Logger.InfoContext(ctx, msg, args...)
 }
 
 func (receiver *Adapter) Warn(ctx context.Context, msg string, args ...interface{}) {
-	receiver.config.Logger.InfoContext(ctx, msg, "gorm_warn", args)
+	msg = fmt.Sprintf("gorm.Warn msg: %s", msg)
+	receiver.config.Logger.InfoContext(ctx, msg, args...)
 }
 
 func (receiver *Adapter) Error(ctx context.Context, msg string, args ...interface{}) {
-	receiver.config.Logger.ErrorContext(ctx, msg, "gorm_error", args)
+	msg = fmt.Sprintf("gorm.Error msg: %s", msg)
+	receiver.config.Logger.ErrorContext(ctx, msg, args...)
 }
 
 func (receiver *Adapter) Trace(ctx context.Context, begin time.Time, fc func() (sql string, rowsAffected int64), err error) {
@@ -58,20 +61,37 @@ func (receiver *Adapter) Trace(ctx context.Context, begin time.Time, fc func() (
 		slog.Int64("rowsAffected", rowsAffected),
 	}
 
-	switch {
-	case err != nil && !errors.Is(err, gormLogger.ErrRecordNotFound):
-		// 有錯誤且不是 RecordNotFound
-		receiver.config.Logger.ErrorContext(ctx, "GORM SQL Error",
-			append(fields, "error", err.Error())...)
-
-	case elapsed > receiver.config.SlowThreshold:
-		// 慢查詢：超過閾值
-		receiver.config.Logger.InfoContext(ctx, "GORM Slow SQL",
-			append(fields, "slow_threshold", receiver.config.SlowThreshold.String())...)
-
-	default:
-		if receiver.config.EnableSuccessSQLLog {
-			receiver.config.Logger.InfoContext(ctx, "GORM SQL", fields...)
+	// 錯誤SQL, 且是真的SQL語句錯誤，不是SQL語句正確，且沒資料的錯誤
+	if err != nil {
+		if !errors.Is(err, gormLogger.ErrRecordNotFound) {
+			fields = append(fields, slog.Any("error", err))
+			slog.ErrorContext(
+				ctx,
+				"gorm.Trace error",
+				fields...,
+			)
 		}
+		return
+	}
+
+	// 慢查詢：超過閾值
+	if elapsed > receiver.config.SlowThreshold {
+		fields = append(
+			fields,
+			slog.String("slow_threshold", receiver.config.SlowThreshold.String()),
+		)
+		slog.InfoContext(
+			ctx,
+			"gorm.Trace slowSQL",
+			fields...,
+		)
+	}
+
+	if receiver.config.EnableSuccessLog {
+		receiver.config.Logger.InfoContext(
+			ctx,
+			"gorm.Trace success",
+			fields...,
+		)
 	}
 }

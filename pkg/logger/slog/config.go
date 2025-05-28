@@ -1,4 +1,4 @@
-package slogx
+package slog
 
 type Config struct {
 	// Path 存放路徑(直接寫: example: /opt/logs/casino-dealer-client/casino-dealer-client.log)

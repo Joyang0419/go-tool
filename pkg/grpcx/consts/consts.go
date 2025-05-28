@@ -1,5 +1,5 @@
 package consts
 
-const TraceIDKey = "traceId"
+const TraceIDKey = "traceID"
 
 const ServiceTags = `group:"services"`
