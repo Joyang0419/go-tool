@@ -1,3 +1,0 @@
-server:
-  port: 50051
-  shutdown_timeout: 5s

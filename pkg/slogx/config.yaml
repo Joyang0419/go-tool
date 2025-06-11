@@ -1,6 +1,0 @@
-slog:
-  path: "./logs/job.log"  # 日誌文件路徑
-  max_size: 100  # 日誌文件最大大小，單位MB
-  max_age: 7  # 日誌文件最大保存時間，單位天
-  caller_skip: 7  # 日誌調用者跳過層數
-  enable_write_file: false  # 是否寫入文件

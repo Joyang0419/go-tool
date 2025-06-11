@@ -1,3 +1,0 @@
-redis_logger:
-  enable_success_log: false
-  slow_threshold: 300ms    # 慢查詢閾值（0.3秒）

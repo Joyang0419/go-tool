@@ -1,3 +1,0 @@
-http_client:
-  base_url: "https:www.yahoo.com"
-  enable_trace: true
