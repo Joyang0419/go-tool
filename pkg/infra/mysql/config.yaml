@@ -1,0 +1,39 @@
+database:
+  # 資料庫名稱
+  database: "my_application_db"
+
+  # 主資料庫設定（寫入用）
+  master:
+    username: "app_user"
+    password: "secure_password_123"
+    host: "mysql-master.example.com"
+    port: "3306"
+
+  # 從資料庫設定（讀取用，支援多個從庫負載均衡）
+  slaves:
+    - user_name: "readonly_user"
+      password: "readonly_password_123"
+      host: "mysql-slave-1.example.com"
+      port: "3306"
+    - user_name: "readonly_user"
+      password: "readonly_password_123"
+      host: "mysql-slave-2.example.com"
+      port: "3306"
+
+  # 連線相關超時設定
+  connect_timeout: 10s    # 建立連線超時時間
+  read_timeout: 30s       # 讀取操作超時時間
+  write_timeout: 30s      # 寫入操作超時時間
+
+  # 時區設定（必須是有效的時區名稱）
+  location: "Asia/Taipei"
+
+  # 連線池設定
+  max_idle_time: 10m      # 連線最大閒置時間（10分鐘）
+  max_life_time: 1h       # 連線最大生命週期（1小時）
+  max_idle_conns: 10      # 最大閒置連線數
+  max_open_conns: 100     # 最大開啟連線數
+
+  # 印Log的設定
+  enable_success_log: false
+  slow_threshold: 300ms    # 慢查詢閾值（0.3秒）

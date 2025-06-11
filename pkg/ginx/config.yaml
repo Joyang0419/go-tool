@@ -1,0 +1,9 @@
+gin:
+  port: 8080
+  shutdown_timeout: 10s  # 關閉超時時間
+  mode: "debug"  # gin模式; debug || release || test
+  cors:
+    allowAllOrigins: true
+    allowHeaders: ["*"]
+    allowMethods: ["*"]
+  enable_swagger: true
